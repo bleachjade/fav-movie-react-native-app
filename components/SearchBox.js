@@ -19,7 +19,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     input: {
-        height: 10
+        height: 20,
+        shadowColor: 'transparent'
     }
 })
 
