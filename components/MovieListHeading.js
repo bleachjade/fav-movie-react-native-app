@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Animated } from 'react-native';
+
+import FadeInView from './FadeInView';
 
 import Fonts from '../constant/Fonts';
+import Colors from '../constant/Colors';
 
 const MovieListHeading = (props) => {
 	return (
@@ -18,7 +21,8 @@ const styles = StyleSheet.create({
     applicationHeading: {
         fontSize: 28,
         fontFamily: Fonts.HelveticaNeueBold,
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        color: Colors.Pink
     },
 })
 
