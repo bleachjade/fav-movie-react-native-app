@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, FlatList, ScrollView } from 'react-native';
 import SafeAreaView from 'react-native-safe-area-view';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 
 import MovieList from '../../components/MovieList';
@@ -15,14 +14,17 @@ import FadeInView from '../../components/FadeInView';
 import Fonts from '../../constant/Fonts';
 import Colors from '../../constant/Colors';
 
+import useAuthentication from "../../utils/hooks/useAuthentication";
+
 const Home = () => {
-    
   const [movies, setMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [favourites, setFavourites] = useState([]);
+
+  const { user } = useAuthentication();
 
   // const [currentDate, setCurrentDate] = useState('');
   // const [lastMonthDate, setLastMonthDate] = useState('');
@@ -196,6 +198,7 @@ const Home = () => {
       </FadeInView>
       <ScrollView>
         <View style={styles.bodyContainer}>
+          
             {/* Search Section */}
             {searchSection()}
             {/* Popular Section */}
