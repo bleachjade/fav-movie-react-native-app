@@ -1,16 +1,26 @@
 import React from 'react';
-import { View, Image, StyleSheet, Text, ImageBackground } from 'react-native';
+import { View, Image, StyleSheet, Text, ImageBackground, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import Colors from '../constant/Colors';
 import Fonts from '../constant/Fonts';
 
-const MovieItem = ({poster, rating}) => {
+const MovieItem = (props) => {
     const vector = require('../assets/yellow_bookmark.png');
 	return (
         <View style={styles.imageContainer}>
-            <Image style={styles.imageObject} source={{ uri: poster }} />
+            <Image style={styles.imageObject} source={{ uri: props.poster }} />
             <ImageBackground source={vector} style={styles.vectorImage}>
-                <Text style={styles.ratingText}>{rating}</Text>
+                <Text style={styles.ratingText}>{props.rating}</Text>
             </ImageBackground>
+            <TouchableOpacity 
+                style={styles.favButton}
+                onPress={() => {
+                    props.handleFavouritesClick(props.movie)
+                }}
+            >
+                {props.heartIcon()}
+            </TouchableOpacity>
         </View>
 	);
 };
@@ -63,6 +73,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 11,
         fontFamily: Fonts.HelveticaNeueBold
+    },
+    favButton: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0
     },
 });
 
