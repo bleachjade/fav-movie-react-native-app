@@ -15,6 +15,7 @@ import Fonts from '../../constant/Fonts';
 import Colors from '../../constant/Colors';
 
 import useAuthentication from "../../utils/hooks/useAuthentication";
+import { auth, db } from '../../config/firebase';
 
 const Home = () => {
   const [movies, setMovies] = useState([]);
@@ -23,8 +24,12 @@ const Home = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [favourites, setFavourites] = useState([]);
+  const [likeIcon, setLikeIcon] = useState(() => () => {});
 
-  const { user } = useAuthentication();
+  const { user } = useAuthentication([]);
+  const userFavReference = db.ref('/users/'+auth.currentUser.uid+'/fav-list').push();
+
+  // DatabaseReference database = FirebaseDatabase.getInstance('https://vax-in-60807-default-rtdb.asia-southeast1.firebasedatabase.app').getReference();
 
   // const [currentDate, setCurrentDate] = useState('');
   // const [lastMonthDate, setLastMonthDate] = useState('');
@@ -72,29 +77,18 @@ const Home = () => {
 		}
 	};
 
-    // let saveToLocalStorage = async (items) => {
-    //     try {
-    //         const jsonValue = JSON.stringify(items);
-    //         // console.log(jsonValue);
-    //         await AsyncStorage.setItem('react-native-fav-movie-list', jsonValue);
-    //     } catch (e) {
-    //     // saving error
-    //     }
-    // };
-    // let getDataFromLocalStorage = async (key) => {
-    //     try {
-    //       const jsonValue = await AsyncStorage.getItem(key)
-    //       console.log(jsonValue);
-    //       return jsonValue != null ? JSON.parse(jsonValue) : null;
-    //     } catch(e) {
-    //       // error reading value
-    //     }
-    //   }
-
     const addFavouriteMovie = (movie) => {
-		const newFavouriteList = [...favourites, movie];
-        console.log(newFavouriteList);
-		setFavourites(newFavouriteList);
+      // const newFavouriteList = [...favourites, movie];
+      //     // console.log(newFavouriteList);
+      // setFavourites(newFavouriteList);
+
+      userFavReference
+        .set({
+          'movieObject': movie
+        })
+        .then(() => console.log('Data updated.'));
+      // console.log(userFavReference);
+    // setLikeIcon(fullHeart());
         // saveToLocalStorage(newFavouriteList);
 	};
     const removeFavouriteMovie = (movie) => {
@@ -103,6 +97,8 @@ const Home = () => {
 		);
 
 		setFavourites(newFavouriteList);
+    // setLikeIcon(outlineHeart());
+
         // saveToLocalStorage(newFavouriteList);
 	};
     const outlineHeart = () => {
@@ -113,17 +109,6 @@ const Home = () => {
         return <MaterialCommunityIcons name='heart' color={Colors.Pink} size={22} />
     };
 
-    // useEffect(() => {
-    //     let lastMonth = moment()
-    //         .utcOffset('+07:00')
-    //         .subtract(30, 'days')
-    //         .format('YYYY-MM-DD');
-    //         setLastMonthDate(lastMonth);
-    //     let date = moment()
-    //         .utcOffset('+07:00')
-    //         .format('YYYY-MM-DD');
-    //         setCurrentDate(date);
-    // }, []);
 
   useEffect(() => {
 		getMovieRequest(searchValue);
@@ -132,6 +117,7 @@ const Home = () => {
   useEffect(() => {
     getNowShowingMovie();
     getPopularMovie();
+    getFavMovie();
 	}, []);
 
 //   useEffect(() => {
@@ -154,11 +140,42 @@ const Home = () => {
     />
   );
 
+  const getFavMovie = async () => {     
+      try {
+        db.ref('/users/'+auth.currentUser.uid+'/fav-list').on('value', (snapshot) => {
+          let newFav = [];
+          snapshot.forEach((movieSnapshot) => {
+            // console.log(movieSnapshot.val().movieObject);
+            // newFav = favourites.concat(movieSnapshot.val().movieObject);
+            // newFav.push({
+            //   ...movieSnapshot.val().movieObject,
+            //   key: movieSnapshot.val().movieObject.id
+            // })
+            const movieObject = movieSnapshot.val().movieObject;
+            newFav.push({
+              id: movieObject.id,
+              movie: movieObject,
+              poster: movieObject.poster_path,
+              rating: movieObject.vote_average
+            })
+            
+            // console.log(newFav);
+            // setFavourites((oldArr) => oldArr.concat(movieSnapshot.val().movieObject));
+          })
+          setFavourites(newFav);
+        });
+      } catch(err) {
+        console.log('error: ' + err);
+      }
+      
+  }
+
   const renderItemFavourite = ({ item }) => (
+    // console.log(item);
     <MovieItem 
-        movie={item}
-        poster={`https://image.tmdb.org/t/p/original/` + item.poster_path} 
-        rating={item.vote_average} 
+        movie={item.movie}
+        poster={`https://image.tmdb.org/t/p/original/` + item.poster} 
+        rating={item.rating} 
         heartIcon={fullHeart}
         handleFavouritesClick={removeFavouriteMovie}
     />
@@ -187,7 +204,7 @@ const Home = () => {
       )
     }
   }
-//   console.log(favourites);
+  // console.log(favourites);
 //   console.log(nowShowingMovies);
 
   return (

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, TextInput } from 'react-native';
 import SafeAreaView from 'react-native-safe-area-view';
 import { Button } from 'react-native-elements';
 
-import { auth } from '../../config/firebase';
+import { auth, db } from '../../config/firebase';
 import Colors from '../../constant/Colors';
 import Fonts from '../../constant/Fonts';
 
@@ -16,6 +16,12 @@ const SignUp = ({navigation}) => {
 
   const appLogo = require('../../assets/fav_logo.png');
 
+  const writeUserData = (userId, email) => {
+    firebase.database().ref('users/' + userId).set({
+      email: email,
+    });
+  }
+
   const signUp = async () => {
     if (value.email === '' || value.password === '') {
         setValue({
@@ -27,6 +33,7 @@ const SignUp = ({navigation}) => {
   
       try {
         await auth.createUserWithEmailAndPassword(value.email, value.password);
+        writeUserData(auth.currentUser.uid, value.email);
         navigation.replace('SignIn');
       } catch (error) {
         setValue({
