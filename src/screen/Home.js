@@ -27,7 +27,7 @@ const Home = () => {
   const [likeIcon, setLikeIcon] = useState(() => () => {});
 
   const { user } = useAuthentication([]);
-  const userFavReference = db.ref('/users/'+auth.currentUser.uid+'/fav-list').push();
+  const userFavReference = db.ref('/users/'+auth.currentUser.uid+'/fav-list');
 
   // DatabaseReference database = FirebaseDatabase.getInstance('https://vax-in-60807-default-rtdb.asia-southeast1.firebasedatabase.app').getReference();
 
@@ -83,7 +83,7 @@ const Home = () => {
       // setFavourites(newFavouriteList);
 
       userFavReference
-        .set({
+        .push({
           'movieObject': movie
         })
         .then(() => console.log('Data updated.'));
@@ -91,22 +91,10 @@ const Home = () => {
     // setLikeIcon(fullHeart());
         // saveToLocalStorage(newFavouriteList);
 	};
-    const removeFavouriteMovie = (movie) => {
-		const newFavouriteList = favourites.filter(
-			(favourite) => favourite.id !== movie.id
-		);
-
-		setFavourites(newFavouriteList);
-    // setLikeIcon(outlineHeart());
-
-        // saveToLocalStorage(newFavouriteList);
-	};
+    
     const outlineHeart = () => {
         return <MaterialCommunityIcons name='heart-outline' color={Colors.Pink} size={22} />
         
-    };
-    const fullHeart = () => {
-        return <MaterialCommunityIcons name='heart' color={Colors.Pink} size={22} />
     };
 
 
@@ -117,18 +105,7 @@ const Home = () => {
   useEffect(() => {
     getNowShowingMovie();
     getPopularMovie();
-    getFavMovie();
 	}, []);
-
-//   useEffect(() => {
-        
-//         getNowShowingMovie();
-// 	}, []);
-
-//   useEffect(() => {
-//         let movieFavourites = getDataFromLocalStorage('react-native-fav-movie-list');
-//         setFavourites(movieFavourites);
-// 	}, []);
 
   const renderItem = ({ item }) => (
     <MovieItem 
@@ -137,47 +114,6 @@ const Home = () => {
         rating={item.vote_average} 
         heartIcon={outlineHeart}
         handleFavouritesClick={addFavouriteMovie}
-    />
-  );
-
-  const getFavMovie = async () => {     
-      try {
-        db.ref('/users/'+auth.currentUser.uid+'/fav-list').on('value', (snapshot) => {
-          let newFav = [];
-          snapshot.forEach((movieSnapshot) => {
-            // console.log(movieSnapshot.val().movieObject);
-            // newFav = favourites.concat(movieSnapshot.val().movieObject);
-            // newFav.push({
-            //   ...movieSnapshot.val().movieObject,
-            //   key: movieSnapshot.val().movieObject.id
-            // })
-            const movieObject = movieSnapshot.val().movieObject;
-            newFav.push({
-              id: movieObject.id,
-              movie: movieObject,
-              poster: movieObject.poster_path,
-              rating: movieObject.vote_average
-            })
-            
-            // console.log(newFav);
-            // setFavourites((oldArr) => oldArr.concat(movieSnapshot.val().movieObject));
-          })
-          setFavourites(newFav);
-        });
-      } catch(err) {
-        console.log('error: ' + err);
-      }
-      
-  }
-
-  const renderItemFavourite = ({ item }) => (
-    // console.log(item);
-    <MovieItem 
-        movie={item.movie}
-        poster={`https://image.tmdb.org/t/p/original/` + item.poster} 
-        rating={item.rating} 
-        heartIcon={fullHeart}
-        handleFavouritesClick={removeFavouriteMovie}
     />
   );
 
@@ -235,17 +171,6 @@ const Home = () => {
                 <FlatList 
                     data={nowShowingMovies}
                     renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    horizontal={true}
-                    style={styles.flatListStyle}
-                />
-            </View>
-            {/* FAV Section */}
-            <View style={styles.movieSectionContainer}>
-                <Text style={styles.sectionHeading}>Favourites</Text>
-                <FlatList 
-                    data={favourites}
-                    renderItem={renderItemFavourite}
                     keyExtractor={item => item.id}
                     horizontal={true}
                     style={styles.flatListStyle}
