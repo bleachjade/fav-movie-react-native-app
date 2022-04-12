@@ -17,7 +17,7 @@ import Colors from '../../constant/Colors';
 import useAuthentication from "../../utils/hooks/useAuthentication";
 import { auth, db } from '../../config/firebase';
 
-const Home = () => {
+const Home = ({ navigation }) => {
   const [movies, setMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
@@ -25,7 +25,8 @@ const Home = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [favourites, setFavourites] = useState([]);
-  const [likeIcon, setLikeIcon] = useState(() => () => {});
+  // const [likeIcon, setLikeIcon] = useState(() => () => {});
+  const [likeIcon, setLikeIcon] = useState(false);
 
   const { user } = useAuthentication([]);
   const userFavReference = db.ref('/users/'+auth.currentUser.uid+'/fav-list');
@@ -99,7 +100,8 @@ const Home = () => {
         .push({
           'movieObject': movie
         })
-        .then(() => console.log('Data updated.'));
+        // .then(() => console.log('Data updated.'));
+        .then(() => navigation.navigate('Profile'));
       // console.log(userFavReference);
     // setLikeIcon(fullHeart());
         // saveToLocalStorage(newFavouriteList);
