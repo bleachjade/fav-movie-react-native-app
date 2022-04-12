@@ -3,7 +3,7 @@ import 'dotenv/config';
 export default{
   "expo": {
     "name": "fav-movie-react-native-expo",
-    "slug": "fav-movie-react-native-expo",
+    "slug": "favorites-movie-application",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
