@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from 'react-native-elements';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+
+import ViewShot from "react-native-view-shot";
+import * as Sharing from "expo-sharing";
 
 import { auth, db } from '../../config/firebase';
 import useAuthentication from "../../utils/hooks/useAuthentication";
@@ -16,6 +19,7 @@ import MovieItem from '../../components/MovieItem';
 const Profile = () => {
     const { user } = useAuthentication();
     const [favourites, setFavourites] = useState([]);
+    const viewShot = useRef();
 
     const userFavReference = db.ref('/users/'+auth.currentUser.uid+'/fav-list');
 
@@ -87,6 +91,14 @@ const Profile = () => {
           handleFavouritesClick={removeFavouriteMovie}
       />
     );
+
+    const captureAndShareScreenshot = () => {
+        viewShot.current.capture().then((uri) => {
+            console.log("do something with ", uri);
+            Sharing.shareAsync("file://" + uri);
+        }),
+        (error) => console.error("Oops, snapshot failed", error);
+    };
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topContainer}>
@@ -96,18 +108,37 @@ const Profile = () => {
                     <Button title="Sign Out" titleStyle={styles.buttonText} buttonStyle={styles.button} onPress={() => auth.signOut()} />
                 </View>
             </View>
-            <View style={styles.movieSectionContainer}>
-                <Text style={styles.sectionHeading}>Your Favourite Movies</Text>
-                <FlatList 
-                    data={favourites}
-                    renderItem={renderItemFavourite}
-                    keyExtractor={item => item.id}
-                    style={styles.flatListStyle}
-                    numColumns={3}
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                />
-            </View>
+            <ViewShot 
+                ref={viewShot}
+                options={{ 
+                    // width: 1080,
+                    // height: 1920,
+                    format: "jpg", 
+                    quality: 0.9 
+                }}
+                style={styles.viewShotStyle}
+                >
+                <View style={styles.movieSectionContainer}>
+                    <View style={styles.sectionHeading}>
+                        <Text style={styles.favText}>Your Favourite Movies</Text>
+                        <TouchableOpacity
+                        style={styles.shareIcon}
+                        onPress={captureAndShareScreenshot}
+                        >
+                        <Ionicons name='ios-share' size={24} color={Colors.White} />
+                        </TouchableOpacity>
+                    </View>
+                    <FlatList 
+                        data={favourites}
+                        renderItem={renderItemFavourite}
+                        keyExtractor={item => item.id}
+                        style={styles.flatListStyle}
+                        numColumns={3}
+                        showsVerticalScrollIndicator={false}
+                        showsHorizontalScrollIndicator={false}
+                    />
+                </View>
+            </ViewShot>
         </SafeAreaView>
     )
 }
@@ -150,25 +181,47 @@ const styles = StyleSheet.create({
     },
     movieSectionContainer: {
         // flexShrink: 1,
-        marginVertical: 10,
+        // marginVertical: 10,
         width: '100%',
-        paddingBottom: 20,
+        borderRadius: 10,
     },
     sectionHeading: {
-        fontSize: 16,
-        fontFamily: Fonts.HelveticaNeueBold,
         paddingHorizontal: 15,
         paddingVertical: 10,
         backgroundColor: Colors.Pink,
-        color: Colors.White,
         marginHorizontal: 10,
         marginVertical: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    favText: {
+        fontSize: 16,
+        fontFamily: Fonts.HelveticaNeueBold,
+        color: Colors.White,
+    },
+    shareIcon: {
+
+    },
+    viewShotStyle: {
+        backgroundColor: Colors.White,
+        borderRadius: 10,
+        // shadowColor: "#000",
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 1,
+        // },
+        // shadowOpacity: 0.22,
+        // shadowRadius: 2.22,
+
+        // elevation: 3,
     },
     flatListStyle: {
-        flexGrow: 1,
-        flexShrink: 1,
+        // flexGrow: 1,
+        // flexShrink: 1,
         flex: 0,
-        height: '100%'
+        height: '78%',
+        paddingBottom: 60
         
     },
 })

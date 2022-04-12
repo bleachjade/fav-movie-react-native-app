@@ -21,6 +21,7 @@ const Home = () => {
   const [movies, setMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
+  const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [favourites, setFavourites] = useState([]);
@@ -44,7 +45,7 @@ const Home = () => {
 
 
   const getMovieRequest = async (searchValue) => {
-    const url = `https://api.themoviedb.org/3/search/multi?query=${searchValue}&api_key=fea3b43a64464cf1684d3af17b0312a2&language=en-US&page=1`;
+    const url = `https://api.themoviedb.org/3/search/multi?query=${searchValue}&api_key=fea3b43a64464cf1684d3af17b0312a2&language=en-US&page=1&sort_by=popularity.desc`;
 
 		const response = await fetch(url);
 		const responseJson = await response.json();
@@ -76,6 +77,18 @@ const Home = () => {
 			setNowShowingMovies(responseJson.results);
 		}
 	};
+  const getTopRatedMovie = async () => {
+    // get top rated movie with vote >= 10000 vote
+		const url = `https://api.themoviedb.org/3/discover/movie?api_key=fea3b43a64464cf1684d3af17b0312a2&sort_by=vote_average.desc&vote_count.gte=10000`;
+
+		const response = await fetch(url);
+		const responseJson = await response.json();
+
+		if (responseJson.results) {
+			setTopRatedMovies(responseJson.results);
+		}
+	};
+  
 
     const addFavouriteMovie = (movie) => {
       // const newFavouriteList = [...favourites, movie];
@@ -105,6 +118,7 @@ const Home = () => {
   useEffect(() => {
     getNowShowingMovie();
     getPopularMovie();
+    getTopRatedMovie();
 	}, []);
 
   const renderItem = ({ item }) => (
@@ -176,6 +190,17 @@ const Home = () => {
                     style={styles.flatListStyle}
                 />
             </View>
+            {/* Top Rated Section */}
+            <View style={styles.movieSectionContainer}>
+                <Text style={styles.sectionHeading}>Top Rated</Text>
+                <FlatList 
+                    data={topRatedMovies}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    horizontal={true}
+                    style={styles.flatListStyle}
+                />
+            </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -210,7 +235,7 @@ const styles = StyleSheet.create({
     },
     bodyContainer: {
       padding: 0,
-      paddingBottom: 50
+      paddingBottom: 60
     },
     movieSectionContainer: {
       flexShrink: 1
