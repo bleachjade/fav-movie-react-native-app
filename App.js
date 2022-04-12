@@ -15,6 +15,10 @@ import MainNavigator from './navigation/MainNavigator';
 
 // const Stack = createNativeStackNavigator();
 
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notifications
+
 const App = () => {
   return (
     // <NavigationContainer>
